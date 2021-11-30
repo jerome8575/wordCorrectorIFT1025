@@ -80,22 +80,39 @@ public class Dictionnaire
                     motCorrect = true;
                     break;
                 }
-                else if (distance(mot, motDict) == 1){
+                else if (distance(mot, motDict) == 1 && motsProche.size() < 5){
                     motsProche.add(motDict);
                 }
             }
             if (!motCorrect){
+                if (motsProche.size() < 5){
+                    findGreaterDistanceRecs(mot, motsProche, 2);
+                }
                 MotIncorrect motIncorrect = new MotIncorrect(i, mot, motsProche);
                 motsIncorrects.add(motIncorrect);
             }
             
         }
-
-        /*for (MotIncorrect m : motsIncorrects){
-            System.out.println(m.mot);
-        }*/
         return motsIncorrects;
 
+
+    }
+
+    public void findGreaterDistanceRecs(String mot, ArrayList<String> recs, int currentDistance){
+
+        Set<Integer> setOfKeys = hashtable.keySet();
+        String motDict;
+
+        for (int key : setOfKeys){
+            motDict = hashtable.get(key);
+            if (recs.size()== 5){
+                return;
+            }
+            if (distance(mot, motDict) == currentDistance){
+                recs.add(motDict);
+            }
+        }
+        findGreaterDistanceRecs(mot, recs, currentDistance + 1);
 
     }
 
