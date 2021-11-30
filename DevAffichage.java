@@ -16,7 +16,6 @@ public class DevAffichage extends JFrame{
     DevControle mainControl;
     JPanel mainPanel = new JPanel();
     JTextArea tArea = new JTextArea();
-    JTextArea cArea = new JTextArea();
     JButton corrButt = new JButton("Corriger");
     JLabel labelDictio = new JLabel("Dictionnaire");
     JLabel labelMots = new JLabel("Fichier Mots");
@@ -60,22 +59,16 @@ public class DevAffichage extends JFrame{
                 }
             });
 
-        //create the text are for the correction
-        cArea.setRows(5);
-        cArea.setColumns(15);
-        cArea.addMouseListener(mainControl);
-
         //create the button for the correction
         corrButt.addActionListener(mainControl);
 
 
         //create and add objects to the panel
+        mainPanel.setLayout(new GridLayout(2,0));
         mainPanel.setBackground(Color.black);
-        mainPanel.add(labelDictio);
-        mainPanel.add(labelMots);
+
         mainPanel.add(tArea);
         mainPanel.add(corrButt);
-        mainPanel.add(cArea);
         this.add(mainPanel);
         this.setVisible(true);
         //testzone
