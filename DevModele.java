@@ -3,26 +3,34 @@ package packageDev1;
 import javax.swing.*;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
+import javax.swing.text.Utilities;
 import java.awt.*;
-import java.awt.event.*;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class DevModele extends JFrame{
     Dictionnaire dictioImport; //Dictionnary imported by user
     Dictionnaire motsImport; //Text imported by user
-    DevAffichage monAffichage;
+    DevVue monAffichage;
+    String absolutePath;
+    String word;
+    String insideFile;
 
     ArrayList<MotIncorrect> motsIncorrects;
 
-    public DevModele(DevAffichage test)
+    public DevModele(DevVue test)
     {
         monAffichage = test;
         motsIncorrects = new ArrayList<MotIncorrect>();
     }
 
-    //highlight particular word in textarea
+
+    // Surligne un mot incorrect
     public void redHightligher(ArrayList<MotIncorrect> motsIncorrects, String text)
     {
         try
@@ -39,19 +47,64 @@ public class DevModele extends JFrame{
         }
         catch (Exception e)
         {
-            System.out.print("PLACEHOLDER4");
+            System.out.print("Impossible de surligner");
         }
 
     }
 
-    //for the
+    public void wordClicked(int offset)
+    {
+        try
+        {
+            System.out.println( monAffichage.tArea.modelToView( offset ) );
+            int start = Utilities.getWordStart(monAffichage.tArea,offset);
+            int end = Utilities.getWordEnd(monAffichage.tArea, offset);
+            word = monAffichage.tArea.getDocument().getText(start, end-start);
+
+            int rowStart = Utilities.getRowStart(monAffichage.tArea, offset);
+            int rowEnd = Utilities.getRowEnd(monAffichage.tArea, offset);
+            monAffichage.tArea.select(rowStart, rowEnd);
+
+            recommander(word);
+
+        }
+        catch (Exception e2) {}
+    }
+
+    // remplace un mot par la recommendation selectione
+    public void changeWord(String replacer)
+    {
+        motsImport.replaceWord(replacer, word);
+        monAffichage.tArea.setText(motsImport.arrLiToStr());
+        corrigerText(monAffichage.tArea.getText());
+    }
+
+    public void saveFile()
+    {
+        try{
+            FileWriter filewriter = new FileWriter(absolutePath);
+            BufferedWriter writer = new BufferedWriter(filewriter);
+            for (int i = 0; i<motsImport.arToStr.size(); i++)
+            {
+                System.out.print(motsImport.arToStr.get(i));
+                writer.write(motsImport.arToStr.get(i) + "\n");
+            }
+            writer.close();
+        }
+        catch (IOException e)
+        {
+            System.out.print("Impossible de sauvegarder fichier");
+        }
+
+    }
+
     public void ouvrirFichier(String type)
     {
         try
         {
             JFileChooser filePicker = new JFileChooser();
             filePicker.showOpenDialog(null);
-            String absolutePath = filePicker.getSelectedFile().getAbsolutePath();
+            absolutePath = filePicker.getSelectedFile().getAbsolutePath();
             String fileName = filePicker.getSelectedFile().getName();
 
             if (type.equals("importDictio"))
@@ -63,32 +116,37 @@ public class DevModele extends JFrame{
 
             else if (type.equals("importMots"))
             {
-                motsImport = new Dictionnaire(absolutePath, fileName);
-                motsImport.toArrays();
-                monAffichage.tArea.setText(motsImport.arrLiToStr());
-                monAffichage.labelMots.setText(motsImport.nomFichier);
-                motsImport.carretInd();
-                //ArrayList<MotIncorrect> motsIncorrects = dictioImport.checkIfIn(motsImport.arToStr);
-                //redHightligher(motsIncorrects);
+                File ourFile = new File(absolutePath);
+                FileReader ourFR = new FileReader(ourFile);
+                BufferedReader ourInput = new BufferedReader(ourFR, 100);
+
+                String sline = ourInput.readLine();
+                while (sline != null)
+                {
+                    insideFile = insideFile + "\n" + sline;
+                    sline = ourInput.readLine();
+                }
+                ourInput.close();
+                monAffichage.tArea.setText(insideFile);
             }
-            
         }
 
         catch(Exception e)
         {
-            System.err.print("PLACEHOLDER1");
+            System.err.print("Type n'existe pas");
         }
     }
 
+
+    // Utilise un objet dictionnaire pour voir si les mots sont incorrects
+    // appel a la fonction redHiglighter pour surligner les mots incorrects
     public void corrigerText(String text){
-        // corriger text
-        System.out.println("Corriger text: " + text);
+
+        motsImport = new Dictionnaire(text);
+        monAffichage.tArea.setText(motsImport.arrLiToStr());
+
         Parser parser = new Parser();
         ArrayList<String> parsedTextArr = parser.parse(text);
-
-        for (String mot : parsedTextArr){
-            System.out.print(mot + " , ");
-        }
 
         motsIncorrects = dictioImport.checkIfIn(parsedTextArr);
         redHightligher(motsIncorrects, text);
@@ -100,7 +158,6 @@ public class DevModele extends JFrame{
                 monAffichage.afficherMenuRecommandation(motIncorrect.recommendations);
             }
         }
-        // do nothing
     }
 
 

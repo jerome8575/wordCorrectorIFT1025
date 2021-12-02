@@ -2,6 +2,7 @@ package packageDev1;
 
 import java.util.ArrayList;
 
+// Objet motIncorrect contenant une liste de recommandation de mots
 
 public class MotIncorrect {
     
