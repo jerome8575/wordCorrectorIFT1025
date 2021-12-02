@@ -20,7 +20,7 @@ public class Dictionnaire
     ArrayList<Integer> arrayTab = new ArrayList<Integer>();
     String nomFichier;
 
-    //Create a constructor for the class
+    //constructor for dictioImport
     public Dictionnaire(String filePath, String fileName)
     {
         nomFichier = fileName;
@@ -34,6 +34,18 @@ public class Dictionnaire
         {
             System.out.print("Votre fichier n'existe pas.");
         }
+    }
+
+    //constructor for motsImport
+    public Dictionnaire(String text)
+    {
+        String[] tempArr = text.split("\\W");
+        for (int i = 0; i<tempArr.length; i++)
+        {
+            arToStr.add(tempArr[i]);
+            hashtable.put(i, tempArr[i]);
+        }
+        carretInd();
     }
 
     //creates an int array that stores the carret
@@ -59,6 +71,9 @@ public class Dictionnaire
         }
     }
 
+
+    // Utilise un boucle pour verifier si un mot appartient au dictionnaire
+    // Trouve les mots a distance 1 de mot incorrect
     public ArrayList<MotIncorrect> checkIfIn(ArrayList<String> textInArrForm){
 
         ArrayList<MotIncorrect> motsIncorrects = new ArrayList<>();
@@ -98,6 +113,8 @@ public class Dictionnaire
 
     }
 
+    // Trouve les recommendations de mots de distance plus grande que 1
+    // arrete des qu l'algorithme en trouve 5
     public void findGreaterDistanceRecs(String mot, ArrayList<String> recs, int currentDistance){
 
         Set<Integer> setOfKeys = hashtable.keySet();
@@ -115,6 +132,26 @@ public class Dictionnaire
         findGreaterDistanceRecs(mot, recs, currentDistance + 1);
 
     }
+
+
+
+    public void replaceWord(String replacer, String replaced)
+    {
+        for (int i = 0; i<arToStr.size(); i++)
+        {
+            if (arToStr.get(i).equals(replaced))
+            {
+                arToStr.set(i, replacer);
+
+            }
+            else
+            {
+
+            }
+        }
+    }
+
+
 
     //converts the file contents
     //to an arraylist and a hashtable
@@ -135,14 +172,15 @@ public class Dictionnaire
         }
         catch (FileNotFoundException e)
         {
-            System.err.print("PLACEHOLDER");
+            System.err.print("Fichier n'existe pas");
         }
 
         catch  (IOException e)
         {
-            System.err.print("PLACEHOLDER");
+            System.err.print("Impossible d'ouvrir le fichier");
         }
     }
+
 
     public void printHash()
     {
@@ -158,12 +196,12 @@ public class Dictionnaire
     //convert to string for the textarea
     public String arrLiToStr()
     {
-        String bruh = "";
+        String txInArea = "";
         for (int i = 0; i < arToStr.size(); i++)
         {
-            bruh = bruh + arToStr.get(i) + "\n";
+            txInArea = txInArea + arToStr.get(i) + "\n";
         }
-        return bruh;
+        return txInArea;
     }
 
     public int distance(String s1, String s2){
